@@ -1,0 +1,28 @@
+{
+  "name": "task-runner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/*.test.js"],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!**/*.test.js"
+    ],
+    "coverageDirectory": "coverage"
+  }
+}
