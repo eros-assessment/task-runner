@@ -1,20 +1,23 @@
 const Task = require("./services/task");
 
-payload = [
-    {
-        id: 1,
-        attempts: 1,
-        numberOfTasks: 10,
-        status: "running",
-        type: "intense",
-        resourceIntensive: "cpu",
-        failPercentage: 0.1
-    }
-];
+const { Consumer } = require("sqs-consumer");
 
-(async () => {
-    await Promise.all(payload.map(async (taskData) => {
-        const task = new Task(taskData);
-        await task.perform();
-    }))
-})();
+const consumer = Consumer.create({
+    queueUrl: "https://sqs.eu-west-1.amazonaws.com/569985934894/test",
+    handleMessage: async (message) => {
+        const { Body } = message;
+        const payload = JSON.parse(Body);
+        const task = new Task(payload);
+        await task.perform();        
+    },
+});
+
+consumer.on("error", (err) => {
+    console.error(err.message);
+});
+
+consumer.on("processing_error", (err) => {
+    console.error(err.message);
+});
+
+consumer.start();

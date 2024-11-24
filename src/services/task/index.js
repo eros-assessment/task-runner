@@ -3,14 +3,13 @@ const { getRandomInt, waitForTimeout } = require("../../utils/random");
 const Logger = require("../../utils/logger");
 
 class Task {
-    constructor({ id, type, attempts, numberOfTasks, failPercentage, resourceIntensive }) {
+    constructor({ id, type, attempts, failPercentage, resourceIntensive }) {
         this.id = id;
         this.type = type;
         this.attempts = attempts;
-        this.numberOfTasks = numberOfTasks;
         this.failPercentage = failPercentage;
         this.resourceIntensive = resourceIntensive;
-        this.log = Logger.child({ id, type, attempts, numberOfTasks, failPercentage, resourceIntensive })
+        this.log = Logger.child({ id, type, attempts, failPercentage, resourceIntensive })
     }
 
     async perform() {
@@ -89,7 +88,6 @@ class Task {
 
                 // Resolve the promise when the worker sends a message
                 worker.on('message', (msg) => {
-                    console.log(msg); // Output "Done" when finished
                     resolve();
                 });
 
