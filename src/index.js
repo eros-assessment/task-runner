@@ -21,3 +21,4 @@ consumer.on("processing_error", (err) => {
 });
 
 consumer.start();
+
