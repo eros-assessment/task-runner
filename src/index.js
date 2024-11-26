@@ -3,12 +3,12 @@ const Task = require("./services/task");
 const { Consumer } = require("sqs-consumer");
 
 const consumer = Consumer.create({
-    queueUrl: "https://sqs.eu-west-1.amazonaws.com/569985934894/test",
+    queueUrl: "https://sqs.eu-west-1.amazonaws.com/569985934894/tsk-dev-tasks",
     handleMessage: async (message) => {
         const { Body } = message;
         const payload = JSON.parse(Body);
         const task = new Task(payload);
-        await task.perform();        
+        await task.perform();       
     },
 });
 
