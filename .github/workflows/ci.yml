@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     outputs:
-      short_sha: ${{ steps.short-sha.outputs..id }}
+      short_sha: ${{ steps.short-sha.outputs.id }}
       artifact_id: ${{ steps.artifact.outputs.artifact-id }}
     steps:
       - name: Checkout code
