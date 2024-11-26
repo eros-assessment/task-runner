@@ -120,7 +120,7 @@ jobs:
           workflow_file_name: deploy-task-runner.yml
           ref: ${{ github.ref_name }}
           wait_interval: 10
-          client_payload: '{"artifact-name":"${{ needs.upload-artifact.outputs.short_sha }}", "workflow-run-id":"${{ github.run_id }}"}'
+          client_payload: '{"tag":"${{ needs.upload-artifact.outputs.short_sha }}", "artifact-name":"${{ needs.upload-artifact.outputs.short_sha }}", "workflow-run-id":"${{ github.run_id }}"}'
           propagate_failure: true
           trigger_workflow: true
           wait_workflow: true

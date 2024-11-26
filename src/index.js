@@ -1,6 +1,7 @@
 const Task = require("./services/task");
 
 const { Consumer } = require("sqs-consumer");
+const logger = require("./utils/logger");
 
 const consumer = Consumer.create({
     queueUrl: "https://sqs.eu-west-1.amazonaws.com/569985934894/tsk-dev-tasks",
@@ -21,4 +22,5 @@ consumer.on("processing_error", (err) => {
 });
 
 consumer.start();
+logger.info("Registered to SQS and wait for messages");
 
