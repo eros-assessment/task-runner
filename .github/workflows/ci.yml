@@ -106,20 +106,20 @@ jobs:
             !**/*.test.js
             node_modules
       
-    trigger-deployment:
-      - name: Trigger deployment in deployment repo
-        needs: ["upload-artifact"]
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
-        with:
-          owner: eros-assessment
-          repo: devops
-          github_token: ${{ secrets.ORG_TOKEN }}
-          workflow_file_name: deploy-task-runner.yml
-          ref: ${{ github.ref_name }}
-          wait_interval: 10
-          client_payload: '{"tag":"${{ needs.upload-artifact.outputs.short_sha }}","artifact-id":"${{ needs.artifact.outputs.artifact_id }}", "workflow-run-id":"${{ github.run_id }}"}'
-          propagate_failure: true
-          trigger_workflow: true
-          wait_workflow: true
+  trigger-deployment:
+    - name: Trigger deployment in deployment repo
+      needs: ["upload-artifact"]
+      uses: convictional/trigger-workflow-and-wait@v1.6.1
+      with:
+        owner: eros-assessment
+        repo: devops
+        github_token: ${{ secrets.ORG_TOKEN }}
+        workflow_file_name: deploy-task-runner.yml
+        ref: ${{ github.ref_name }}
+        wait_interval: 10
+        client_payload: '{"tag":"${{ needs.upload-artifact.outputs.short_sha }}","artifact-id":"${{ needs.artifact.outputs.artifact_id }}", "workflow-run-id":"${{ github.run_id }}"}'
+        propagate_failure: true
+        trigger_workflow: true
+        wait_workflow: true
       
     
