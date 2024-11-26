@@ -39,9 +39,22 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-  snyk-scan:
+  test:
     runs-on: ubuntu-latest
     needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+  snyk-scan:
+    runs-on: ubuntu-latest
+    needs: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -64,22 +77,9 @@ jobs:
         with:
           sarif_file: snyk.sarif
 
-  test:
-    runs-on: ubuntu-latest
-    needs: snyk-scan
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npm test
-
   upload-artifact:
     runs-on: ubuntu-latest
-    needs: test
+    needs: snyk-scan
     outputs:
       short_sha: ${{ steps.short-sha.outputs.id }}
       artifact_id: ${{ steps.artifact.outputs.artifact-id }}
@@ -95,7 +95,7 @@ jobs:
         id: short-sha
         run: |
           id=$(echo ${{github.sha}} | cut -c 1-7)
-          echo "id=$id" >> "$GITHUB_OUTPUTS"
+          echo "id=$id" >> "$GITHUB_OUTPUT"
 
       - name: Upload build artifact
         id: artifact
