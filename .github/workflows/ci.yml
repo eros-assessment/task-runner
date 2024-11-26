@@ -19,6 +19,7 @@ jobs:
           node-version: '20'
 
       - name: Cache npm modules
+        id: cache-npm
         uses: actions/cache@v4
         env:
           cache-name: cache-node-modules
@@ -94,7 +95,7 @@ jobs:
         id: short-sha
         run: |
           id=$(echo ${{github.sha}} | cut -c 1-7)
-          echo "::set-output name=id::$id"
+          echo "id=$id" >> "$GITHUB_OUTPUTS"
 
       - name: Upload build artifact
         id: artifact
