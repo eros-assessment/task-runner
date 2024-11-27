@@ -9,8 +9,9 @@ const { Consumer } = require("sqs-consumer");
 const logger = require("./utils/logger");
 
 const consumer = Consumer.create({
-    queueUrl: "https://sqs.eu-west-1.amazonaws.com/569985934894/tsk-dev-tasks",
+    queueUrl: process.env.TASKS_QUEUE_URL,
     handleMessage: async (message) => {
+        logger.info("Received message", { message })
         const segment = AWSXRay.getSegment();
         const subsegment = segment.addNewSubsegment("clientTaskPerform")
 
@@ -19,19 +20,22 @@ const consumer = Consumer.create({
         const payload = JSON.parse(Body);
         subsegment.addMetadata("taskDetails", payload);
         const task = new Task(payload);
-        await task.perform();       
+        await task.perform();
         subsegment.close();
     },
 });
 
+consumer.on("started", () => {
+    logger.info("Registered to SQS and wait for messages");
+})
+
 consumer.on("error", (err) => {
-    console.error(err.message);
+    logger.error(`Received error: ${err.message}`, { error: err.message });
 });
 
 consumer.on("processing_error", (err) => {
-    console.error(err.message);
+    logger.error(`Processing error: ${err.message}`, { error: err.message });
 });
 
-logger.info("Registered to SQS and wait for messages");
 consumer.start();
 
