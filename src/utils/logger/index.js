@@ -31,9 +31,9 @@ function rest(info) {
   info.logDate = new Date();
 
   try {
-    return `\n${JSON.stringify(info)}`
+    return JSON.stringify(info)
   } catch (e) {
-    return `\n${inspect(info, { depth: null, compact: true, breakLength: Infinity })}`;
+    return inspect(info, { depth: null, compact: true, breakLength: Infinity });
   }
 }
 
@@ -50,7 +50,13 @@ const logger = winston.createLogger({
       format: winston.format.combine(
         errorObjectFormat(),
         winston.format.colorize(),
-        winston.format.printf((info) => `[${info.level}] ${info.message}${rest(info)}`)
+        winston.format.printf((info) => {
+          if (process.env.ENVIRONMENT !== "local") {
+            return rest(info)
+          }
+
+          return `[${info.level}] ${info.message}\n${rest(info)}`
+        })
       ),
       silent: process.env.ENVIRONMENT === "test",
     }),

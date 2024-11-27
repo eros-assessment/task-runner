@@ -11,17 +11,22 @@ const logger = require("./utils/logger");
 const consumer = Consumer.create({
     queueUrl: process.env.TASKS_QUEUE_URL,
     handleMessage: async (message) => {
-        logger.info("Received message", { message })
-        const segment = AWSXRay.getSegment();
-        const subsegment = segment.addNewSubsegment("clientTaskPerform")
-
-        const { Body } = message;
-
-        const payload = JSON.parse(Body);
-        subsegment.addMetadata("taskDetails", payload);
-        const task = new Task(payload);
-        await task.perform();
-        subsegment.close();
+        try {            
+            const { Body } = message;            
+            logger.info("Received message", { message })
+            
+            const payload = JSON.parse(Body);
+            const segment = AWSXRay.getSegment();
+            const subsegment = segment.addNewSubsegment("clientTaskPerform")
+            subsegment.addMetadata("taskDetails", payload);
+            const task = new Task(payload);
+            await task.perform();
+            subsegment.close();
+        } catch (error) {
+            logger.error(`Received error: ${err.message}`, { error: err.message });
+            throw error;
+        }
+        
     },
 });
 
