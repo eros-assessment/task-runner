@@ -1,13 +1,12 @@
 const AWS = require('aws-sdk');
 const AWSXRay = require('aws-xray-sdk');
-
-AWSXRay.captureAWS(AWS);
-
+const logger = require("./utils/logger");
 const Task = require("./services/task");
 
-const { Consumer } = require("sqs-consumer");
-const logger = require("./utils/logger");
+AWSXRay.captureAWS(AWS);
+AWSXRay.setLogger(console); // Ensure logging is sent to console
 
+const { Consumer } = require("sqs-consumer");
 const consumer = Consumer.create({
     queueUrl: process.env.TASKS_QUEUE_URL,
     handleMessage: async (message) => {
@@ -18,6 +17,7 @@ const consumer = Consumer.create({
 
             const { traceHeader, taskBody } = JSON.parse(Body);
             const segment = new AWSXRay.Segment("TaskProcessing", traceHeader);
+            console.log({aws: AWSXRay, segment, traceHeader})
             segment.addAnnotation("Environment", process.env.ENVIRONMENT);
             segment.addAnnotation("TaskId", taskBody.id);
             segment.addMetadata("QueueMessage", taskBody);
