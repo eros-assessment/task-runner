@@ -14,7 +14,6 @@ const consumer = Consumer.create({
         const { traceHeader, taskBody } = JSON.parse(Body);
         const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, traceHeader);
         try {
-            console.log({aws: AWSXRay, segment, trace})
             segment.addAnnotation("Environment", process.env.ENVIRONMENT);
             segment.addAnnotation("TaskId", taskBody.id);
             segment.addMetadata("QueueMessage", taskBody);
