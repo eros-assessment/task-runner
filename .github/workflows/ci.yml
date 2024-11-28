@@ -6,7 +6,8 @@ on:
       - '**'
   push:
     branches:
-      - main
+      - production
+      - stage
       - dev
 
 jobs:
