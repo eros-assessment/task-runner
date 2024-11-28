@@ -123,7 +123,7 @@ jobs:
           repo: devops
           ref: production
           github_token: ${{ secrets.ORG_TOKEN }}
-          workflow_file_name: deploy-api.yml
+          workflow_file_name: deploy-task-runner.yml
           wait_interval: 10
           client_payload: '{"environment": "${{ github.ref_name }}", "tag":"${{ needs.upload-artifact.outputs.short_sha }}", "artifact-name":"${{ needs.upload-artifact.outputs.short_sha }}", "workflow-run-id":"${{ github.run_id }}"}'
           propagate_failure: true
