@@ -4,17 +4,16 @@ const logger = require("./utils/logger");
 const Task = require("./services/task");
 
 AWSXRay.captureAWS(AWS);
-AWSXRay.setLogger(console); // Ensure logging is sent to console
 
 const { Consumer } = require("sqs-consumer");
 const consumer = Consumer.create({
     queueUrl: process.env.TASKS_QUEUE_URL,
     handleMessage: async (message) => {
+        const { Body } = message;
+        logger.info("Received message", { Body });            
         const { traceHeader, taskBody } = JSON.parse(Body);
         const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, traceHeader);
         try {
-            const { Body } = message;
-            logger.info("Received message", { Body });            
             console.log({aws: AWSXRay, segment, trace})
             segment.addAnnotation("Environment", process.env.ENVIRONMENT);
             segment.addAnnotation("TaskId", taskBody.id);
