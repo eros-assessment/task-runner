@@ -9,10 +9,10 @@ const { Consumer } = require("sqs-consumer");
 const consumer = Consumer.create({
     queueUrl: process.env.TASKS_QUEUE_URL,
     handleMessage: async (message) => {
+        const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`);
         const { Body } = message;
         logger.info("Received message", { Body });            
-        const { traceHeader, taskBody } = JSON.parse(Body);
-        const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, traceHeader);
+        const { taskBody } = JSON.parse(Body);
         try {
             segment.addAnnotation("Environment", process.env.ENVIRONMENT);
             segment.addAnnotation("TaskId", taskBody.id);
