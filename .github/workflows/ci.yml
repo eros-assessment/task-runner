@@ -113,10 +113,10 @@ jobs:
       
   trigger-deployment:
     runs-on: ubuntu-latest
-    if: github.ref == 'dev' || github.ref == 'stage' || github.ref == 'production'
+    if: github.ref_name == 'dev' || github.ref_name == 'stage' || github.ref_name == 'production'
     needs: upload-artifact
     steps:
-      - name: Trigger deployment to ${{ github.ref }}
+      - name: Trigger deployment to ${{ github.ref_name }}
         uses: convictional/trigger-workflow-and-wait@v1.6.1        
         with:
           owner: eros-assessment
@@ -125,7 +125,7 @@ jobs:
           github_token: ${{ secrets.ORG_TOKEN }}
           workflow_file_name: deploy-api.yml
           wait_interval: 10
-          client_payload: '{"environment": "${{ github.ref }}", "tag":"${{ needs.upload-artifact.outputs.short_sha }}", "artifact-name":"${{ needs.upload-artifact.outputs.short_sha }}", "workflow-run-id":"${{ github.run_id }}"}'
+          client_payload: '{"environment": "${{ github.ref_name }}", "tag":"${{ needs.upload-artifact.outputs.short_sha }}", "artifact-name":"${{ needs.upload-artifact.outputs.short_sha }}", "workflow-run-id":"${{ github.run_id }}"}'
           propagate_failure: true
           trigger_workflow: true
           wait_workflow: true
