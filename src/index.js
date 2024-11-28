@@ -12,7 +12,9 @@ const consumer = Consumer.create({
         const { Body } = message;
         logger.info("Received message", { Body });
         const { taskBody, traceHeader } = JSON.parse(Body);
-        const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, traceHeader);
+        const { Root: traceId, Parent: parentId } = AWSXRay.utils.processTraceData(traceHeader);
+        const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, traceId, parentId);
+        console.log({ traceHeader, traceId, parentId })
         segment.addAnnotation("Environment", process.env.ENVIRONMENT);
         segment.addAnnotation("TaskId", taskBody.id);
         segment.addMetadata("QueueMessage", taskBody);
