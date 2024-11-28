@@ -20,21 +20,19 @@ const consumer = Consumer.create({
         const taskBody = JSON.parse(Body);
         const { root, parent } = AWSXRay.utils.processTraceData(Attributes.AWSTraceHeader);
         const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, root, parent);
-        const subSegment = segment.addNewSubsegment("ProcessingTask");
-        subSegment.addAnnotation("Environment", process.env.ENVIRONMENT);
-        subSegment.addAnnotation("TaskId", taskBody.id);
-        subSegment.addMetadata("QueueMessage", taskBody);
+
+        segment.addAnnotation("Environment", process.env.ENVIRONMENT);
+        segment.addAnnotation("TaskId", taskBody.id);
+        segment.addMetadata("QueueMessage", taskBody);
 
         try {
             const task = new Task(taskBody);
             await task.perform();
-            subSegment.close();
             segment.close();
         } catch (err) {
             logger.error(`Received error: ${err.message}`, { error: err.message });
             throw err;
         } finally {
-            subSegment.close();
             segment.close();
         }
     },

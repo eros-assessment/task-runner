@@ -1,6 +1,9 @@
 name: build-test-trigger
 
 on:
+  pull_request:
+    branches:
+      - '**'
   push:
     branches:
       - main
@@ -109,18 +112,19 @@ jobs:
       
   trigger-deployment:
     runs-on: ubuntu-latest
+    if: github.ref == 'dev' || github.ref == 'stage' || github.ref == 'production'
     needs: upload-artifact
     steps:
-      - name: Trigger deployment in deployment repo
+      - name: Trigger deployment to ${{ github.ref }}
         uses: convictional/trigger-workflow-and-wait@v1.6.1        
         with:
           owner: eros-assessment
           repo: devops
+          ref: production
           github_token: ${{ secrets.ORG_TOKEN }}
-          workflow_file_name: deploy-task-runner.yml
-          ref: ${{ github.ref_name }}
+          workflow_file_name: deploy-api.yml
           wait_interval: 10
-          client_payload: '{"tag":"${{ needs.upload-artifact.outputs.short_sha }}", "artifact-name":"${{ needs.upload-artifact.outputs.short_sha }}", "workflow-run-id":"${{ github.run_id }}"}'
+          client_payload: '{"environment": "${{ github.ref }}", "tag":"${{ needs.upload-artifact.outputs.short_sha }}", "artifact-name":"${{ needs.upload-artifact.outputs.short_sha }}", "workflow-run-id":"${{ github.run_id }}"}'
           propagate_failure: true
           trigger_workflow: true
           wait_workflow: true
