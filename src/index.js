@@ -1,7 +1,3 @@
-process.env.TASKS_QUEUE_URL = "https://sqs.eu-west-1.amazonaws.com/569985934894/tsk-dev-tasks"
-process.env.ENVIRONMENT = "dev"
-
-
 const AWS = require('aws-sdk');
 const AWSXRay = require('aws-xray-sdk');
 const logger = require("./utils/logger");
@@ -17,7 +13,7 @@ const consumer = Consumer.create({
     handleMessage: async (message) => {
         const { Body, Attributes } = message;
         logger.info("Received message", { Body });
-        const taskBody = JSON.parse(Body);
+        const { taskBody } = JSON.parse(Body);
         const { root, parent } = AWSXRay.utils.processTraceData(Attributes.AWSTraceHeader);
         const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, root, parent);
 
@@ -28,7 +24,6 @@ const consumer = Consumer.create({
         try {
             const task = new Task(taskBody);
             await task.perform();
-            segment.close();
         } catch (err) {
             logger.error(`Received error: ${err.message}`, { error: err.message });
             throw err;
@@ -51,6 +46,9 @@ consumer.on("processing_error", (err) => {
 });
 
 consumer.start();
+
+
+
 
 
 
