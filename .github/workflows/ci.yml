@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
         run: npm install
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     steps:
       - name: Checkout code
@@ -57,7 +57,7 @@ jobs:
         run: npm test
 
   snyk-scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: test
     steps:
       - name: Checkout code
@@ -82,7 +82,7 @@ jobs:
           sarif_file: snyk.sarif
 
   upload-artifact:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: snyk-scan
     outputs:
       short_sha: ${{ steps.short-sha.outputs.id }}
@@ -112,7 +112,7 @@ jobs:
             node_modules
       
   trigger-deployment:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.ref_name == 'dev' || github.ref_name == 'stage' || github.ref_name == 'production'
     needs: upload-artifact
     steps:
