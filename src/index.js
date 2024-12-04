@@ -1,8 +1,3 @@
-process.env.TASKS_QUEUE_URL = "https://sqs.eu-west-1.amazonaws.com/569985934894/tsk-dev-tasks"
-process.env.TASKS_QUEUE_URL = "https://sqs.eu-west-1.amazonaws.com/569985934894/tsk-dev-tasks"
-process.env.ENVIRONMENT = "dev"
-
-
 const AWS = require('aws-sdk');
 const AWSXRay = require('aws-xray-sdk');
 const logger = require("./utils/logger");
