@@ -1,5 +1,3 @@
-
-
 const AWS = require('aws-sdk');
 const AWSXRay = require('aws-xray-sdk');
 const logger = require("./utils/logger");
@@ -33,8 +31,8 @@ const consumer = Consumer.create({
         const { Body, Attributes } = message;
         logger.info("Received message", { Body });
         const { taskBody } = JSON.parse(Body);
-        const { root, parent } = AWSXRay.utils.processTraceData(Attributes.AWSTraceHeader);
-        const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, root, parent);
+        const { parent } = AWSXRay.utils.processTraceData(Attributes.AWSTraceHeader);
+        const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, parent);
 
         segment.addAnnotation("Environment", process.env.ENVIRONMENT);
         segment.addAnnotation("TaskId", taskBody.id);
