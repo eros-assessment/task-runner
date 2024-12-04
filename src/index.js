@@ -1,9 +1,15 @@
+process.env.TASKS_QUEUE_URL = "https://sqs.eu-west-1.amazonaws.com/569985934894/tsk-dev-tasks"
+process.env.TASKS_QUEUE_URL = "https://sqs.eu-west-1.amazonaws.com/569985934894/tsk-dev-tasks"
+process.env.ENVIRONMENT = "dev"
+
+
 const AWS = require('aws-sdk');
 const AWSXRay = require('aws-xray-sdk');
 const logger = require("./utils/logger");
 const Task = require("./services/task");
 
 AWSXRay.captureAWS(AWS);
+const ns = AWSXRay.getNamespace();
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 const putItem = async (tableName, item) => {
@@ -31,9 +37,11 @@ const consumer = Consumer.create({
         const { Body, Attributes } = message;
         logger.info("Received message", { Body });
         const { taskBody } = JSON.parse(Body);
-        const { parent } = AWSXRay.utils.processTraceData(Attributes.AWSTraceHeader);
-        const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, parent);
-        AWSXRay.setSegment(segment);
+        const { root, parent } = AWSXRay.utils.processTraceData(Attributes.AWSTraceHeader);
+        const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, root, parent);
+        ns.run(function () {
+            AWSXRay.setSegment(segment)
+        });
         const subsegment = segment.addNewSubsegment("TaskProcessing")
 
         subsegment.addAnnotation("Environment", process.env.ENVIRONMENT);
