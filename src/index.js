@@ -33,10 +33,12 @@ const consumer = Consumer.create({
         const { taskBody } = JSON.parse(Body);
         const { parent } = AWSXRay.utils.processTraceData(Attributes.AWSTraceHeader);
         const segment = new AWSXRay.Segment(`task-runner-${process.env.ENVIRONMENT}`, parent);
+        AWSXRay.setSegment(segment);
+        const subsegment = segment.addNewSubsegment("TaskProcessing")
 
-        segment.addAnnotation("Environment", process.env.ENVIRONMENT);
-        segment.addAnnotation("TaskId", taskBody.id);
-        segment.addMetadata("QueueMessage", taskBody);
+        subsegment.addAnnotation("Environment", process.env.ENVIRONMENT);
+        subsegment.addAnnotation("TaskId", taskBody.id);
+        subsegment.addMetadata("QueueMessage", taskBody);
 
         try {
             const task = new Task(taskBody);
@@ -48,7 +50,9 @@ const consumer = Consumer.create({
                 ttl: Math.floor(Date.now() / 1000) + 3600, // expire after 1 hour
                 ...taskBody
             })
+            subsegment.close();
         } catch (err) {
+            subsegment.addError(err);
             logger.error(`Received error: ${err.message}`, { error: err.message });
             await putItem(process.env.TASKS_DYNAMODB_TABLE, {
                 taskId: taskBody.id,
